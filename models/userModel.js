@@ -30,6 +30,10 @@ const userSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  resetPasswordLink: {
+    type: String,
+    default: "",
+  },
   comments: [
     {
       type: mongoose.Types.ObjectId,

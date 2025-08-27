@@ -10,6 +10,12 @@ exports.postComment = async (req, res, next) => {
       error.status = 400;
       next(error);
     }
+    const postExist = await postModel.findById(postId);
+    if (!postExist) {
+      const error = new Error("Post doesnt exist");
+      error.status = 404;
+      return next(error);
+    }
     const comment = await commentModel.create({
       text,
       commentedBy: req.user.id,
@@ -34,10 +40,13 @@ exports.postComment = async (req, res, next) => {
     next(error);
   }
 };
-exports.getAllComments = async (req, res, next) => {
+exports.getPostsComments = async (req, res, next) => {
+  const limit = Number(req.query.limit) || 10;
+  const page = Number(req.query.page) || 1;
+  const skip = (page - 1) * limit;
   try {
     const { postId } = req.params;
-    const post = await postModel.findById(postId).populate("comments", "text");
+    const post = await postModel.findById(postId);
     if (!post) {
       const error = new Error("post not found");
       error.status = 404;
@@ -48,8 +57,15 @@ exports.getAllComments = async (req, res, next) => {
       error.status = 404;
       return next(error);
     }
-    const comments = post.comments;
-    return res.status(200).json(comments);
+    const comments = await commentModel
+      .find({ post: postId })
+      .sort("-createdAt")
+      .skip(skip)
+      .limit(limit)
+      .populate("commentedBy", "name");
+
+    const total = await commentModel.countDocuments({ post: postId });
+    return res.status(200).json({ comments, total });
   } catch (error) {
     next(error);
   }
@@ -115,3 +131,4 @@ exports.updateComment = async (req, res, next) => {
     next(error);
   }
 };
+//exports.getPostComment

@@ -12,20 +12,12 @@ const postSchema = new mongoose.Schema(
       trim: true,
     },
     previewPix: {
-      type: String,
-      required: true,
+      url: { type: String, required: true },
+      public_id: { type: String, required: true },
     },
     detailPix: {
-      type: String,
-      required: true,
-    },
-    previewPixId: {
-      type: String,
-      required: true,
-    },
-    detailPixId: {
-      type: String,
-      required: true,
+      url: String,
+      public_id: String,
     },
     creator: {
       type: mongoose.Types.ObjectId,
